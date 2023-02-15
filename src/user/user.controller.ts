@@ -1,6 +1,7 @@
 import { Request, Response, Router } from "express";
 import { deleteById, getAllUser, getUserById } from "./user.service";
 import authMiddleware from "./../core/auth.middleware";
+import ownerMiddleware from "./../core/owner.middleware";
 
 const usersRouter = Router();
 
@@ -23,14 +24,18 @@ usersRouter.get("/users/:id", (req: Request, res: Response) => {
   }
 });
 
-usersRouter.delete("/users/:id", (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    deleteById(id);
-    return res.send();
-  } catch (error) {
-    return res.status(400).send({ message: error.message });
+usersRouter.delete(
+  "/users/:id",
+  ownerMiddleware,
+  (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+      deleteById(id);
+      return res.send();
+    } catch (error) {
+      return res.status(400).send({ message: error.message });
+    }
   }
-});
+);
 
 export default usersRouter;
